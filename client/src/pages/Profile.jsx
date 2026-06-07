@@ -75,13 +75,19 @@ const Profile = () => {
   //     </div>
   //   );
   // }
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <div className="flex flex-col h-full bg-gray-100">
       {/* Header */}
       <div className="bg-primary px-4 py-4 flex items-center gap-3">
         <button
           onClick={() => navigate("/chat")}
-          className="text-white text-[28px]"
+          className="text-white text-[28px] cursor-pointer hover:text-gray-200 transition "
         >
           <IoArrowBackCircleOutline />
         </button>
@@ -150,13 +156,16 @@ const Profile = () => {
         {/* Update Button */}
         <button
           onClick={handleUpdateProfile}
-          className="bg-primary text-white rounded-full py-3 text-sm font-medium"
+          className="bg-primary text-white rounded-full py-3 text-sm font-medium cursor-pointer hover:opacity-90 transition"
         >
           Update Profile
         </button>
 
         {/* Logout Button */}
-        <button className="bg-red-500 text-white rounded-full py-3 text-sm font-medium">
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white rounded-full py-3 text-sm font-medium cursor-pointer hover:bg-red-600 transition"
+        >
           Logout
         </button>
       </div>
