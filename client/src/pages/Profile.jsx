@@ -3,6 +3,7 @@ import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../api/config";
+import toast from "react-hot-toast";
 
 const Profile = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const Profile = () => {
   });
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [updateLoading, setUpdateLoading] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
@@ -44,22 +46,34 @@ const Profile = () => {
       </div>
     );
   }
+
   const handleUpdateProfile = async () => {
     try {
+      setUpdateLoading(true);
+
       const data = new FormData();
       data.append("fullName", formData.fullName);
       data.append("email", formData.email);
+
       if (selectedImage) {
         data.append("profileImage", selectedImage);
       }
+
       const res = await axios.put(`${API_BASE_URL}/api/updateProfile`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       console.log(res.data);
+      toast.success("Profile Updated Successfully");
     } catch (error) {
-      console.log(error.response);
+      console.log(error.response.API_BASE_URL);
+      toast.error("Profile Update Failed");
+    } finally {
+      setUpdateLoading(false);
     }
   };
   const handleChange = (e) => {
@@ -154,11 +168,23 @@ const Profile = () => {
         </div>
 
         {/* Update Button */}
-        <button
+        {/* <button
           onClick={handleUpdateProfile}
           className="bg-primary text-white rounded-full py-3 text-sm font-medium cursor-pointer hover:opacity-90 transition"
         >
           Update Profile
+        </button> */}
+
+        <button
+          onClick={handleUpdateProfile}
+          disabled={updateLoading}
+          className="bg-primary text-white rounded-full py-3 text-sm font-medium cursor-pointer hover:opacity-90 transition"
+        >
+          {updateLoading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto"></div>
+          ) : (
+            "Update Profile"
+          )}
         </button>
 
         {/* Logout Button */}

@@ -66,7 +66,7 @@ const login = async (req, res) => {
       email: user.email,
     };
     const token = jwt.sign(payload, process.env.JWT_SECRET, {
-      expiresIn: "1d",
+      expiresIn: "365d",
     });
 
     res.status(200).json({
@@ -105,6 +105,7 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
+    console.log("=== UPDATE PROFILE CALLED ===");
     console.log("FILE:", req.file);
     console.log("BODY:", req.body);
     console.log("IMAGE URL:", req.imageUrl);
