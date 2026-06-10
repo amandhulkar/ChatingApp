@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../api/config";
 // Aman Dhulkar
@@ -10,7 +10,6 @@ const MainLayout = () => {
   const [activeTab, setActiveTab] = useState("chats");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
   // console.log(token);
   // if (!token) {
   //   navigate("/login");
@@ -83,13 +82,18 @@ const MainLayout = () => {
     fetchContacts();
   }, []);
 
+  
   return (
     <div className="h-screen w-screen flex">
       {/* sidebar */}
-      <div className="bg-gray-100 w-1/4 p-3">
+      {/* <div className="bg-gray-100 w-1/4 p-3"> */}
+      {/* <div className="bg-gray-100 w-50 p-3"> */}
+      {/* <div className="bg-gray-100 w-87 p-3 border-r border-gray-300"> */}
+      <div className="bg-gray-100 w-80 p-3 border-r border-gray-300">
         {/* header */}
         <div className="bg-primary px-4 py-4 flex items-center justify-between">
-          <div className="text-white font-semibold text-lg">
+          {/* <div className="text-white font-semibold text-lg"> */}
+          <div className="text-white font-semibold text-lg truncate">
             {user.fullName}
           </div>
 
@@ -107,7 +111,7 @@ const MainLayout = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b justify-between border-gray-200 bg-gray-100">
+        <div className="flex border-b justify-between border-gray-300 bg-gray-200">
           <button
             onClick={() => setActiveTab("chats")}
             className={`flex-1 py-2 text-sm font-medium transition
@@ -146,7 +150,8 @@ const MainLayout = () => {
                 <div
                   key={c._id}
                   onClick={() => navigate(`/chat/${c._id}`)}
-                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-200 border-b border-gray-100"
+                  // className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-200 border-b border-gray-100"
+                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-300 border-b border-gray-100 transition"
                 >
                   <div className="relative ">
                     <div className="w-12 h-12 rounded-full bg-[#075E54] text-white flex items-center justify-center font-medium text-lg overflow-hidden">
@@ -188,7 +193,8 @@ const MainLayout = () => {
                   <div
                     key={g._id}
                     onClick={() => navigate(`/group/${g._id}`)}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-200 border-b border-gray-100"
+                    // className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-200 border-b border-gray-100"
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-300 border-b border-gray-100 transition"
                   >
                     <div className="w-12 h-12 rounded-full bg-[#075E54] text-white flex items-center justify-center font-medium text-lg overflow-hidden">
                       {g.groupIcon ? (
@@ -230,3 +236,4 @@ const MainLayout = () => {
 };
 
 export default MainLayout;
+

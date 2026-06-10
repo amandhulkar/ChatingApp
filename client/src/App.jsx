@@ -1,13 +1,12 @@
 import React from "react";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import MainLayout from './layouts/MainLayout'
+import MainLayout from "./layouts/MainLayout";
 import Chat from "./pages/Chat";
 import Group from "./pages/Group";
 import Profile from "./pages/Profile";
-
 
 const router = createBrowserRouter([
   {
@@ -31,11 +30,26 @@ const router = createBrowserRouter([
     children: [
       {
         path: "chat",
-        element:(
-          <div className='flex items-center justify-center h-screen text-gray-600 font-semibold'>Select user to start chat</div>
-        )
+        element: (
+          <div className="flex items-center justify-center h-screen text-gray-600 font-semibold">
+            Select user to start chat
+             {/* or create group to start group chat */}
+          </div>
+          
+        ),
       },
-      {
+   
+      // {
+      //   path: "chat/:userId",
+      //   element: <Chat />,
+      // },
+      // {
+      //   path: "group/:groupId",
+      //   element: <Group />,
+      // },
+    ],
+  },
+   {
         path: "chat/:userId",
         element: <Chat />,
       },
@@ -43,13 +57,10 @@ const router = createBrowserRouter([
         path: "group/:groupId",
         element: <Group />,
       },
-      {
-        path: "profile",
-        element: <Profile />,
-      },
-    ],
+  {
+    path: "/profile",
+    element: <Profile />,
   },
-
   {
     path: "*",
 

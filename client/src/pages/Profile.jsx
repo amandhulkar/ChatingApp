@@ -96,7 +96,8 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-100">
+    // <div className="flex flex-col h-full bg-gray-100">
+    <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       {/* Header */}
       <div className="bg-primary px-4 py-4 flex items-center gap-3">
         <button
@@ -108,27 +109,6 @@ const Profile = () => {
       </div>
 
       {/* Profile Header */}
-      {/* <div className="bg-primary pb-8 pt-4 flex flex-col items-center">
-        <label className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center cursor-pointer overflow-hidden mb-3">
-          <span className="text-white text-3xl font-medium">A</span> */}
-
-      {/* <input type="file" accept="image/*" className="hidden" /> */}
-      {/* <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              console.log("Selected File:", e.target.files[0]);
-              setSelectedImage(e.target.files[0]);
-            }}
-          />
-        </label>
-
-        <p className="text-white font-medium">{formData.fullName}</p>
-        <p className="text-white/70 text-sm">{formData.email}</p>
-      </div> */}
-
-      {/* Profile Header */}
       <div className="bg-primary pb-8 pt-4 flex flex-col items-center">
         <label className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center cursor-pointer overflow-hidden mb-3">
           {formData.profilePic ? (
@@ -138,6 +118,7 @@ const Profile = () => {
               className="w-full h-full object-cover"
             />
           ) : (
+            // <span className="text-white text-3xl font-medium">A</span>
             <span className="text-white text-3xl font-medium">
               {formData.fullName?.charAt(0).toUpperCase()}
             </span>
