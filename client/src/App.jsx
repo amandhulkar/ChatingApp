@@ -1,4 +1,3 @@
-import React from "react";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -7,6 +6,10 @@ import MainLayout from "./layouts/MainLayout";
 import Chat from "./pages/Chat";
 import Group from "./pages/Group";
 import Profile from "./pages/Profile";
+import { io } from "socket.io-client"
+import React, { useEffect, useRef, useState } from "react";
+import { API_BASE_URL } from './api/config'
+import { SocketContext } from "./context/SocketContext"
 
 const router = createBrowserRouter([
   {
@@ -79,10 +82,34 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
+  const [socketConnected, setSocketConnected] = useState(false)
+  const [onlineUsers, setOnlineUsers] = useState([])
+
+  const token = localStorage.getItem("token")
+
+  const socketRef = useRef()
+
+    useEffect(() => {
+    socketRef.current = io(`${API_BASE_URL}`, {
+      auth: { token }
+    })
+    socketRef.current.on("connect", () => {
+      console.log("connected", socketRef.current.id);
+      setSocketConnected(true)
+    })
+    socketRef.current.on("onlineUser", (users) => {
+      console.log("onlineUser", users);
+      setOnlineUsers(users)
+    })
+
+  }, [token])
+
   return (
     <>
+      <SocketContext.Provider value={{ token, socketConnected, onlineUsers }}>
       <Toaster />
       <RouterProvider router={router} />
+      </SocketContext.Provider>
     </>
   );
 };
