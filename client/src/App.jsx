@@ -40,12 +40,12 @@ const router = createBrowserRouter([
       {
         path: "chat",
         element: (
-          <protectedRoute>  
+          <ProtectedRoute>  
           <div className="flex items-center justify-center h-screen text-gray-600 font-semibold">
             Select user to start chat
             {/* or create group to start group chat */}
           </div>
-          </protectedRoute> 
+          </ProtectedRoute> 
         ),
       },
 
