@@ -111,7 +111,7 @@ const Profile = () => {
       {/* Profile Header */}
       <div className="bg-primary pb-8 pt-4 flex flex-col items-center">
         <label className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center cursor-pointer overflow-hidden mb-3">
-          {formData.profilePic ? (
+          {/* {formData.profilePic ? (
             <img
               src={formData.profilePic}
               alt="Profile"
@@ -119,6 +119,21 @@ const Profile = () => {
             />
           ) : (
             // <span className="text-white text-3xl font-medium">A</span>
+            <span className="text-white text-3xl font-medium">
+              {formData.fullName?.charAt(0).toUpperCase()}
+            </span>
+          )} */}
+          {selectedImage || formData.profilePic ? (
+            <img
+              src={
+                selectedImage
+                  ? URL.createObjectURL(selectedImage)
+                  : formData.profilePic
+              }
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
             <span className="text-white text-3xl font-medium">
               {formData.fullName?.charAt(0).toUpperCase()}
             </span>
