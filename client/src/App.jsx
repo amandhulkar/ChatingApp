@@ -6,10 +6,12 @@ import MainLayout from "./layouts/MainLayout";
 import Chat from "./pages/Chat";
 import Group from "./pages/Group";
 import Profile from "./pages/Profile";
-import { io } from "socket.io-client"
+import { io } from "socket.io-client";
 import React, { useEffect, useRef, useState } from "react";
-import { API_BASE_URL } from './api/config'
-import { SocketContext } from "./context/SocketContext"
+import { API_BASE_URL } from "./api/config";
+import { SocketContext } from "./context/SocketContext";
+import { Navigate } from "react-router-dom";
+import ProtectedRoute from "./components/chat/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -29,19 +31,24 @@ const router = createBrowserRouter([
 
   {
     path: "/",
-    element: <MainLayout />,
+    element: (
+      <ProtectedRoute>
+        <MainLayout />
+      </ProtectedRoute>
+    ),
     children: [
       {
         path: "chat",
         element: (
+          <protectedRoute>  
           <div className="flex items-center justify-center h-screen text-gray-600 font-semibold">
             Select user to start chat
-             {/* or create group to start group chat */}
+            {/* or create group to start group chat */}
           </div>
-          
+          </protectedRoute> 
         ),
       },
-   
+
       // {
       //   path: "chat/:userId",
       //   element: <Chat />,
@@ -52,17 +59,29 @@ const router = createBrowserRouter([
       // },
     ],
   },
-   {
-        path: "chat/:userId",
-        element: <Chat />,
-      },
-      {
-        path: "group/:groupId",
-        element: <Group />,
-      },
+  {
+    path: "chat/:userId",
+    element: (
+      <ProtectedRoute>
+        <Chat />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "group/:groupId",
+    element: (
+      <ProtectedRoute>
+        <Group />
+      </ProtectedRoute>
+    ),
+  },
   {
     path: "/profile",
-    element: <Profile />,
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "*",
@@ -82,33 +101,32 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  const [socketConnected, setSocketConnected] = useState(false)
-  const [onlineUsers, setOnlineUsers] = useState([])
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
-  const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token");
 
-  const socketRef = useRef()
+  const socketRef = useRef();
 
-    useEffect(() => {
+  useEffect(() => {
     socketRef.current = io(`${API_BASE_URL}`, {
-      auth: { token }
-    })
+      auth: { token },
+    });
     socketRef.current.on("connect", () => {
       console.log("connected", socketRef.current.id);
-      setSocketConnected(true)
-    })
+      setSocketConnected(true);
+    });
     socketRef.current.on("onlineUser", (users) => {
       console.log("onlineUser", users);
-      setOnlineUsers(users)
-    })
-
-  }, [token])
+      setOnlineUsers(users);
+    });
+  }, [token]);
 
   return (
     <>
       <SocketContext.Provider value={{ token, socketConnected, onlineUsers }}>
-      <Toaster />
-      <RouterProvider router={router} />
+        <Toaster />
+        <RouterProvider router={router} />
       </SocketContext.Provider>
     </>
   );
