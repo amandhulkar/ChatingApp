@@ -9,7 +9,7 @@ const signup = async (req, res) => {
       res.status(400).json({ message: "All fields are required" });
     }
 
-    const userExist = await User.findOne({ email });  
+    const userExist = await User.findOne({ email });
 
     if (userExist) {
       return res.status(400).json({
@@ -190,4 +190,11 @@ const imageupload = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getProfile, getAllContacts, updateProfile, imageupload };
+module.exports = {
+  signup,
+  login,
+  getProfile,
+  getAllContacts,
+  updateProfile,
+  imageupload,
+};
