@@ -15,12 +15,22 @@ const uploadToCloudinary = async (req, res, next) => {
         resource_type: "auto",
         folder: "chatingApp",
       });
-
-      if (result.resource_type === "image") {
+      // console.log("file", file);
+      //   if (result.resource_type === "image") {
+      //     req.imageUrl.push(result.secure_url);
+      //   } else if (result.resource_type === "video") {
+      //     req.videoUrl.push(result.secure_url);
+      //   } else {
+      //     req.audioUrl.push(result.secure_url);
+      //   }
+      // }
+      if (file.mimetype.startsWith("image")) {
         req.imageUrl.push(result.secure_url);
-      } else if (result.resource_type === "video") {
+      }
+      if (file.mimetype.startsWith("video")) {
         req.videoUrl.push(result.secure_url);
-      } else {
+      }
+      if (file.mimetype.startsWith("audio")) {
         req.audioUrl.push(result.secure_url);
       }
     }
