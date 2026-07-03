@@ -7,10 +7,9 @@ import Chat from "./pages/Chat";
 import Group from "./pages/Group";
 import Profile from "./pages/Profile";
 import { io } from "socket.io-client";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { API_BASE_URL } from "./api/config";
 import { SocketContext } from "./context/SocketContext";
-import { Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/chat/ProtectedRoute";
 
 const router = createBrowserRouter([
@@ -40,48 +39,39 @@ const router = createBrowserRouter([
       {
         path: "chat",
         element: (
-          <ProtectedRoute>  
-          <div className="flex items-center justify-center h-screen text-gray-600 font-semibold">
-            Select user to start chat
-            {/* or create group to start group chat */}
-          </div>
-          </ProtectedRoute> 
+          <ProtectedRoute>
+            <div className="flex items-center justify-center h-screen text-gray-600 font-semibold">
+              Select user to start chat
+              {/* or create group to start group chat */}
+            </div>
+          </ProtectedRoute>
         ),
       },
-
-      // {
-      //   path: "chat/:userId",
-      //   element: <Chat />,
-      // },
-      // {
-      //   path: "group/:groupId",
-      //   element: <Group />,
-      // },
+      {
+        path: "chat/:userId",
+        element: (
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "group/:groupId",
+        element: (
+          <ProtectedRoute>
+            <Group />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        ),
+      },
     ],
-  },
-  {
-    path: "chat/:userId",
-    element: (
-      <ProtectedRoute>
-        <Chat />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "group/:groupId",
-    element: (
-      <ProtectedRoute>
-        <Group />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: "/profile",
-    element: (
-      <ProtectedRoute>
-        <Profile />
-      </ProtectedRoute>
-    ),
   },
   {
     path: "*",
@@ -109,22 +99,36 @@ const App = () => {
   const socketRef = useRef();
 
   useEffect(() => {
+    if (!token) return;
+
     socketRef.current = io(`${API_BASE_URL}`, {
       auth: { token },
     });
+
     socketRef.current.on("connect", () => {
       console.log("connected", socketRef.current.id);
       setSocketConnected(true);
     });
+
+    socketRef.current.on("disconnect", () => {
+      setSocketConnected(false);
+    });
+
     socketRef.current.on("onlineUser", (users) => {
       console.log("onlineUser", users);
       setOnlineUsers(users);
     });
+
+    return () => {
+      socketRef.current?.disconnect();
+      socketRef.current = null;
+      setSocketConnected(false);
+    };
   }, [token]);
 
   return (
     <>
-      <SocketContext.Provider value={{ token, socketConnected, onlineUsers }}>
+      <SocketContext.Provider value={{ token, socketConnected, onlineUsers, socketRef }}>
         <Toaster />
         <RouterProvider router={router} />
       </SocketContext.Provider>

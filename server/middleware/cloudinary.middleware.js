@@ -2,7 +2,9 @@ const cloudinary = require("../config/cloudinary");
 
 const uploadToCloudinary = async (req, res, next) => {
   try {
-    if (!req.files || req.files.length === 0) {
+    const files = req.files?.length ? req.files : req.file ? [req.file] : [];
+
+    if (files.length === 0) {
       return next();
     }
 
@@ -10,7 +12,7 @@ const uploadToCloudinary = async (req, res, next) => {
     req.videoUrl = [];
     req.audioUrl = [];
 
-    for (const file of req.files) {
+    for (const file of files) {
       const result = await cloudinary.uploader.upload(file.path, {
         resource_type: "auto",
         folder: "chatingApp",

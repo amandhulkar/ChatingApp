@@ -97,12 +97,12 @@ const Profile = () => {
 
   return (
     // <div className="flex flex-col h-full bg-gray-100">
-    <div className="flex flex-col min-h-screen bg-gray-100 w-full">
+    <div className="flex flex-col h-screen bg-gray-100 w-full min-w-0 overflow-hidden">
       {/* Header */}
       <div className="bg-primary px-4 py-4 flex items-center gap-3">
         <button
           onClick={() => navigate("/chat")}
-          className="text-white text-[28px] cursor-pointer hover:text-gray-200 transition "
+          className="md:hidden text-white text-[28px] cursor-pointer hover:text-gray-200 transition "
         >
           <IoArrowBackCircleOutline />
         </button>

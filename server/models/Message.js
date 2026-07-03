@@ -9,6 +9,10 @@ const messageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
+    groupId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Group"
+    },
     text: {
         type: String
     },
@@ -21,6 +25,10 @@ const messageSchema = new mongoose.Schema({
     audioUrl: [{
         type: String
     }],
+    seen: {
+        type: Boolean,
+        default: false
+    },
 
 }, { timestamps: true })
 const Message = mongoose.model("Message", messageSchema)

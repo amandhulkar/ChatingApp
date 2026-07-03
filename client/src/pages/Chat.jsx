@@ -22,11 +22,9 @@
 // export default Chat;
 
 
-import React from 'react'
 import ChatHeader from '../components/chat/ChatHeader'
 import MessageArea from '../components/chat/MessageArea'
 import InputBar from '../components/chat/InputBar'
-import { useParams } from 'react-router-dom'
 import { useState } from 'react'
 
 const Chat = () => {
@@ -34,7 +32,7 @@ const Chat = () => {
 
   return (
     <>
-      <div className='flex flex-col h-screen'>
+      <div className='flex flex-col h-screen min-w-0 overflow-hidden'>
         <ChatHeader />
         <MessageArea  setMessages={setMessages} messages={messages}/>
         <InputBar setMessages={setMessages} />

@@ -33,7 +33,7 @@ const ChatHeader = () => {
     <div className="px-4 py-3 bg-[#075E54] flex items-center gap-3">
       <button
         onClick={() => navigate("/chat")}
-        className=" text-white text-2xl mr-1 p-2 -m-2"
+        className="md:hidden text-white text-2xl mr-1 p-2 -m-2"
       >
         <IoArrowBackCircleOutline />
       </button>

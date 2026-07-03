@@ -32,16 +32,12 @@ app.get("/", (req, res) => {
 
 initSocket(server);
 
-// server.listen(PORT, () => {
-//   console.log(`server running on port ${PORT}`);
-//   dbConnect();
-// });
-
-server.listen(PORT, async() => {
-  // await sequelize.authenticate();
-  // console.log("database authenticate");
-  // await sequelize.sync({alter:false});
-  // console.log("table sync");
-  dbConnect()
-  console.log(`server is running port ${PORT}`);
-})
+server.listen(PORT, async () => {
+  try {
+    await dbConnect();
+    console.log(`server is running port ${PORT}`);
+  } catch (error) {
+    console.error("Failed to start server because MongoDB connection failed.");
+    process.exit(1);
+  }
+});
