@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Message = require("../models/Message");
 const jwt = require("jsonwebtoken");
 
 const signup = async (req, res) => {
@@ -173,11 +174,37 @@ const getAllContacts = async (req, res) => {
   try {
     const logingUserId = req.user._id;
     const query = { _id: { $ne: logingUserId } };
-    const user = await User.find(query).select("-password");
+    const user = await User.find(query).select("-password").lean();
+
+    const unreadCounts = await Message.aggregate([
+      {
+        $match: {
+          receiverId: logingUserId,
+          seen: false,
+          deletedFor: { $ne: logingUserId },
+        },
+      },
+      {
+        $group: {
+          _id: "$senderId",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const unreadMap = unreadCounts.reduce((acc, item) => {
+      acc[item._id.toString()] = item.count;
+      return acc;
+    }, {});
+
+    const contacts = user.map((contact) => ({
+      ...contact,
+      unreadCount: unreadMap[contact._id.toString()] || 0,
+    }));
 
     res.status(200).json({
       message: "get all contacts list",
-      data: user,
+      data: contacts,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });

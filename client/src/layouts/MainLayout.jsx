@@ -23,6 +23,7 @@ const MainLayout = () => {
   const location = useLocation();
   const isConversationOpen = location.pathname.startsWith("/chat/") || location.pathname.startsWith("/group/") || location.pathname.startsWith("/profile");
   const { token, socketRef } = useSocket();
+  const currentUserId = token ? JSON.parse(atob(token.split(".")[1])).userId : null;
   const { isDark, toggleTheme } = useTheme();
   const fileInputRef = useRef();
 
@@ -68,12 +69,50 @@ const MainLayout = () => {
     if (!socket) return;
 
     const handleGroupCreated = () => fetchGroups();
+    const handleGroupUpdated = () => fetchGroups();
+    const handleNewMessage = (msg) => {
+      const senderId = msg.senderId?._id || msg.senderId;
+      const isOpenChat = location.pathname === `/chat/${senderId}`;
+
+      if (isOpenChat) return;
+
+      setContacts((prev) =>
+        prev.map((contact) =>
+          contact._id === senderId
+            ? { ...contact, unreadCount: (contact.unreadCount || 0) + 1 }
+            : contact
+        )
+      );
+    };
+
+    const handleNewGroupMessage = (msg) => {
+      const groupId = msg.groupId?._id || msg.groupId;
+      const senderId = msg.senderId?._id || msg.senderId;
+      const isOpenGroup = location.pathname === `/group/${groupId}`;
+
+      if (isOpenGroup || senderId === currentUserId) return;
+
+      setGroups((prev) =>
+        prev.map((group) =>
+          group._id === groupId
+            ? { ...group, unreadCount: (group.unreadCount || 0) + 1 }
+            : group
+        )
+      );
+    };
+
     socket.on("groupCreated", handleGroupCreated);
+    socket.on("groupUpdated", handleGroupUpdated);
+    socket.on("newMessage", handleNewMessage);
+    socket.on("newGroupMessage", handleNewGroupMessage);
 
     return () => {
       socket.off("groupCreated", handleGroupCreated);
+      socket.off("groupUpdated", handleGroupUpdated);
+      socket.off("newMessage", handleNewMessage);
+      socket.off("newGroupMessage", handleNewGroupMessage);
     }
-  }, [socketRef]);
+  }, [socketRef, location.pathname, currentUserId]);
 
   const toggleMember = (memberId) => {
     setSelectedMembers((prev) => {
@@ -123,6 +162,24 @@ const MainLayout = () => {
       setShowGroupModal(true);
       return;
     }
+  }
+
+  const handleOpenChat = (contactId) => {
+    setContacts((prev) =>
+      prev.map((contact) =>
+        contact._id === contactId ? { ...contact, unreadCount: 0 } : contact
+      )
+    );
+    navigate(`/chat/${contactId}`);
+  }
+
+  const handleOpenGroup = (groupId) => {
+    setGroups((prev) =>
+      prev.map((group) =>
+        group._id === groupId ? { ...group, unreadCount: 0 } : group
+      )
+    );
+    navigate(`/group/${groupId}`);
   }
 
   return (
@@ -189,7 +246,7 @@ const MainLayout = () => {
               {contacts.map((c) => (
                 <div
                   key={c._id}
-                  onClick={() => navigate(`/chat/${c._id}`)}
+                  onClick={() => handleOpenChat(c._id)}
                   className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-300 dark:hover:bg-[#202c33] border-b border-gray-100 dark:border-[#2a3942] transition"
                 >
                   <div className="relative ">
@@ -206,11 +263,16 @@ const MainLayout = () => {
                     </div>
                   </div>
 
-                  <div className="min-w-0">
-                    <div className="flex justify-between items-center">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex justify-between items-center gap-2">
                       <p className="font-medium text-gray-900 dark:text-[#e9edef] text-sm truncate">
                         {c.fullName}
                       </p>
+                      {c.unreadCount > 0 && (
+                        <span className="min-w-5 h-5 px-1.5 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center shrink-0">
+                          {c.unreadCount > 99 ? "99+" : c.unreadCount}
+                        </span>
+                      )}
                     </div>
 
                     <p className="text-xs text-gray-500 dark:text-[#8696a0] truncate mt-0.5">
@@ -233,7 +295,7 @@ const MainLayout = () => {
                 groups.map((g) => (
                   <div
                     key={g._id}
-                    onClick={() => navigate(`/group/${g._id}`)}
+                    onClick={() => handleOpenGroup(g._id)}
                     className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-300 dark:hover:bg-[#202c33] border-b border-gray-100 dark:border-[#2a3942] transition"
                   >
                     <div className="w-12 h-12 rounded-full bg-[#075E54] text-white flex items-center justify-center font-medium text-lg overflow-hidden shrink-0">
@@ -249,9 +311,16 @@ const MainLayout = () => {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 dark:text-[#e9edef] text-sm truncate">
-                        {g.group_name}
-                      </p>
+                      <div className="flex justify-between items-center gap-2">
+                        <p className="font-medium text-gray-900 dark:text-[#e9edef] text-sm truncate">
+                          {g.group_name}
+                        </p>
+                        {g.unreadCount > 0 && (
+                          <span className="min-w-5 h-5 px-1.5 rounded-full bg-primary text-white text-xs font-semibold flex items-center justify-center shrink-0">
+                            {g.unreadCount > 99 ? "99+" : g.unreadCount}
+                          </span>
+                        )}
+                      </div>
 
                       <p className="text-xs text-gray-500 dark:text-[#8696a0] truncate">
                         {g.group_member?.length || 0} members

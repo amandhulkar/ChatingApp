@@ -1,5 +1,6 @@
 const Message = require("../models/Message");
 const User = require("../models/User");
+const Group = require("../models/Group");
 const { getIO } = require("../services/socket")
 
 const getDirectChatQuery = (userOne, userTwo) => ({
@@ -213,30 +214,94 @@ const deleteMessage = async (req, res) => {
     try {
         const logingUserId = req.user._id
         const { messageId } = req.params
+        const scope = req.query.scope || "me"
+        const twoHours = 2 * 60 * 60 * 1000
 
-        const message = await Message.findOneAndUpdate(
-            {
-                _id: messageId,
-                $or: [
-                    { senderId: logingUserId },
-                    { receiverId: logingUserId }
-                ]
-            },
-            {
-                $addToSet: { deletedFor: logingUserId },
-                deletedAt: new Date(),
-                deletedBy: logingUserId
-            },
-            { new: true }
-        )
-
+        const message = await Message.findById(messageId)
         if (!message) {
             return res.status(404).json({ message: "Message not found" })
         }
 
+        const isDirectMember =
+            message.senderId?.toString() === logingUserId.toString() ||
+            message.receiverId?.toString() === logingUserId.toString()
+
+        let isGroupMember = false
+        if (message.groupId) {
+            const group = await Group.findById(message.groupId)
+            isGroupMember = group?.group_member?.some((member) => member.toString() === logingUserId.toString()) || false
+        }
+
+        if (!isDirectMember && !isGroupMember) {
+            return res.status(404).json({ message: "Message not found" })
+        }
+
+        if (scope === "me") {
+            const updatedMessage = await Message.findByIdAndUpdate(
+                messageId,
+                {
+                    $addToSet: { deletedFor: logingUserId },
+                    deletedAt: new Date(),
+                    deletedBy: logingUserId
+                },
+                { new: true }
+            ).populate("senderId", "fullName profilePic email")
+
+            return res.status(200).json({
+                message: "Message deleted for you",
+                data: updatedMessage
+            })
+        }
+
+        if (scope !== "everyone") {
+            return res.status(400).json({ message: "Invalid delete option" })
+        }
+
+        if (message.senderId?.toString() !== logingUserId.toString()) {
+            return res.status(403).json({ message: "You can delete for everyone only your own messages" })
+        }
+
+        if (Date.now() - new Date(message.createdAt).getTime() > twoHours) {
+            return res.status(400).json({ message: "You can delete for everyone only within 2 hours" })
+        }
+
+        const updatedMessage = await Message.findByIdAndUpdate(
+            messageId,
+            {
+                text: "",
+                imageUrl: [],
+                videoUrl: [],
+                audioUrl: [],
+                deletedForEveryone: true,
+                deletedForEveryoneAt: new Date(),
+                deletedForEveryoneBy: logingUserId
+            },
+            { new: true }
+        ).populate("senderId", "fullName profilePic email")
+
+        const io = getIO()
+        if (updatedMessage.groupId) {
+            io.to(`group:${updatedMessage.groupId}`).emit("messageDeletedForEveryone", {
+                chatType: "group",
+                groupId: updatedMessage.groupId,
+                message: updatedMessage
+            })
+        } else {
+            io.to(updatedMessage.senderId._id.toString()).emit("messageDeletedForEveryone", {
+                chatType: "direct",
+                receiverId: updatedMessage.receiverId,
+                message: updatedMessage
+            })
+            io.to(updatedMessage.receiverId.toString()).emit("messageDeletedForEveryone", {
+                chatType: "direct",
+                receiverId: updatedMessage.receiverId,
+                message: updatedMessage
+            })
+        }
+
         res.status(200).json({
-            message: "Message deleted successfully",
-            data: message
+            message: "Message deleted for everyone",
+            data: updatedMessage
         })
     } catch (error) {
         console.log("error deleteMessage ", error.message);

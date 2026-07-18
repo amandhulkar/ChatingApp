@@ -38,6 +38,7 @@ const Chat = () => {
   const [blockedByMe, setBlockedByMe] = useState(false)
   const [hasBlockedMe, setHasBlockedMe] = useState(false)
   const { token } = useSocket()
+  const currentUserId = token ? JSON.parse(atob(token.split(".")[1])).userId : null
   const { userId } = useParams()
   const navigate = useNavigate()
 
@@ -148,17 +149,23 @@ const Chat = () => {
     }
   }
 
-  const handleDeleteMessage = (messageId) => {
+  const handleDeleteMessage = (messageId, scope) => {
+    const isEveryone = scope === "everyone"
+
     showConfirmToast({
-      title: "Delete message?",
-      message: "This message will be removed only for you.",
+      title: isEveryone ? "Delete for everyone?" : "Delete for me?",
+      message: isEveryone ? "This message will be deleted for everyone." : "This message will be removed only for you.",
       confirmText: "Delete",
       confirmClass: "bg-red-500",
       onConfirm: async () => {
         try {
-          await axios.delete(`${API_BASE_URL}/api/messages/${messageId}`, authHeader)
-          setMessages((prev) => prev.filter((msg) => msg._id !== messageId))
-          toast.success("Message deleted")
+          const res = await axios.delete(`${API_BASE_URL}/api/messages/${messageId}?scope=${scope}`, authHeader)
+          if (isEveryone) {
+            setMessages((prev) => prev.map((msg) => msg._id === messageId ? res.data.data : msg))
+          } else {
+            setMessages((prev) => prev.filter((msg) => msg._id !== messageId))
+          }
+          toast.success(isEveryone ? "Message deleted for everyone" : "Message deleted for you")
         } catch (error) {
           handleError(error)
         }
@@ -179,7 +186,7 @@ const Chat = () => {
           blockedByMe={blockedByMe}
           onRelationshipChange={handleRelationshipChange}
         />
-        <MessageArea setMessages={setMessages} messages={messages} searchText={searchText} onDeleteMessage={handleDeleteMessage} />
+        <MessageArea setMessages={setMessages} messages={messages} searchText={searchText} onDeleteMessage={handleDeleteMessage} currentUserId={currentUserId} />
         {blockedByMe ? (
           <div className="bg-[#f0f2f5] dark:bg-[#202c33] border-t border-gray-200 dark:border-[#2a3942] px-4 py-4 text-center">
             <p className="text-sm text-gray-700 dark:text-[#e9edef]">You blocked this user</p>
