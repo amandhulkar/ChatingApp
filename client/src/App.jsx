@@ -10,6 +10,7 @@ import { io } from "socket.io-client";
 import { useEffect, useRef, useState } from "react";
 import { API_BASE_URL } from "./api/config";
 import { SocketContext } from "./context/SocketContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import ProtectedRoute from "./components/chat/ProtectedRoute";
 
 const router = createBrowserRouter([
@@ -40,7 +41,7 @@ const router = createBrowserRouter([
         path: "chat",
         element: (
           <ProtectedRoute>
-            <div className="flex items-center justify-center h-screen text-gray-600 font-semibold">
+            <div className="flex items-center justify-center h-screen bg-[#efeae2] text-gray-600 font-semibold dark:bg-[#0b141a] dark:text-[#8696a0]">
               Select user to start chat
               {/* or create group to start group chat */}
             </div>
@@ -93,10 +94,23 @@ const router = createBrowserRouter([
 const App = () => {
   const [socketConnected, setSocketConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState([]);
-
-  const token = localStorage.getItem("token");
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
 
   const socketRef = useRef();
+
+  useEffect(() => {
+    const handleAuthTokenChange = () => {
+      setToken(localStorage.getItem("token"));
+    };
+
+    window.addEventListener("authTokenChanged", handleAuthTokenChange);
+    window.addEventListener("storage", handleAuthTokenChange);
+
+    return () => {
+      window.removeEventListener("authTokenChanged", handleAuthTokenChange);
+      window.removeEventListener("storage", handleAuthTokenChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -127,12 +141,12 @@ const App = () => {
   }, [token]);
 
   return (
-    <>
+    <ThemeProvider>
       <SocketContext.Provider value={{ token, socketConnected, onlineUsers, socketRef }}>
         <Toaster />
         <RouterProvider router={router} />
       </SocketContext.Provider>
-    </>
+    </ThemeProvider>
   );
 };
 

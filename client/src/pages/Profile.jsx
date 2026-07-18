@@ -5,11 +5,14 @@ import axios from "axios";
 import { API_BASE_URL } from "../api/config";
 import toast from "react-hot-toast";
 
+const DEFAULT_ABOUT = "Hey there! I am using ChatingApp.";
+
 const Profile = () => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     profilePic: "",
+    about: DEFAULT_ABOUT,
   });
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -29,7 +32,7 @@ const Profile = () => {
         },
       });
       console.log(res.data);
-      setFormData(res.data.user);
+      setFormData({ ...res.data.user, about: res.data.user?.about || DEFAULT_ABOUT });
     } catch (error) {
       console.log(error.response);
     } finally {
@@ -54,6 +57,7 @@ const Profile = () => {
       const data = new FormData();
       data.append("fullName", formData.fullName);
       data.append("email", formData.email);
+      data.append("about", formData.about || "");
 
       if (selectedImage) {
         data.append("profileImage", selectedImage);
@@ -68,6 +72,9 @@ const Profile = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       console.log(res.data);
+      if (res.data.user) {
+        setFormData({ ...res.data.user, about: res.data.user.about || DEFAULT_ABOUT });
+      }
       toast.success("Profile Updated Successfully");
     } catch (error) {
       console.log(error.response.API_BASE_URL);
@@ -92,6 +99,7 @@ const Profile = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    window.dispatchEvent(new Event("authTokenChanged"));
     navigate("/login");
   };
 
@@ -188,6 +196,24 @@ const Profile = () => {
                 // }
                 // readOnly
                 className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#00BFA5]"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-gray-500">About</label>
+                <span className="text-[11px] text-gray-400">
+                  {(formData.about || "").length}/140
+                </span>
+              </div>
+              <textarea
+                name="about"
+                value={formData.about || ""}
+                onChange={handleChange}
+                placeholder="Write something about yourself"
+                maxLength={140}
+                rows="3"
+                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#00BFA5] resize-none"
               />
             </div>
           </div>

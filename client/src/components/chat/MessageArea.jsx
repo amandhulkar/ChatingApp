@@ -39,6 +39,7 @@ const MessageArea = ({ messages, setMessages }) => {
   }
 
   const fetchMessages = async () => {
+    if (!token) return;
     try {
       const res = await axios.get(`${API_BASE_URL}/api/get-message/${userId}`, {
         headers: {
@@ -53,7 +54,7 @@ const MessageArea = ({ messages, setMessages }) => {
   };
   useEffect(() => {
     fetchMessages();
-  }, [userId]);
+  }, [userId, token]);
 
   useEffect(() => {
     const socket = socketRef?.current;
@@ -81,7 +82,7 @@ const MessageArea = ({ messages, setMessages }) => {
   }, [messages])
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#efeae2] px-2 sm:px-4 py-3">
+    <div className="flex-1 overflow-y-auto bg-[#efeae2] dark:bg-[#0b141a] px-2 sm:px-4 py-3">
       {messages.map((msg, index) => {
         const isMe = getId(msg.senderId) !== userId
         const previousMsg = messages[index - 1];
@@ -91,15 +92,15 @@ const MessageArea = ({ messages, setMessages }) => {
           <React.Fragment key={msg._id}>
             {showDate && (
               <div className="flex justify-center my-3">
-                <span className="bg-white/80 text-gray-600 text-xs px-3 py-1 rounded-lg shadow-sm">
+                <span className="bg-white/80 dark:bg-[#182229] text-gray-600 dark:text-[#8696a0] text-xs px-3 py-1 rounded-lg shadow-sm">
                   {formatDateLabel(msg.createdAt)}
                 </span>
               </div>
             )}
 
             <div className={`flex mb-2 ${isMe ? "justify-end" : "justify-start"}`} >
-              <div className={`p-2 rounded-lg shadow max-w-[85%] sm:max-w-[75%] break-words
-                ${isMe ? "bg-[#dcf8c6] rounded-tr-none" : "bg-white rounded-tl-none"}`}>
+              <div className={`p-2 rounded-lg shadow max-w-[85%] sm:max-w-[75%] break-words text-gray-900 dark:text-[#e9edef]
+                ${isMe ? "bg-[#dcf8c6] dark:bg-[#005c4b] rounded-tr-none" : "bg-white dark:bg-[#202c33] rounded-tl-none"}`}>
 
                 {/* text  */}
                 {msg.text && <p className="text-sm whitespace-pre-wrap">{msg.text}</p>}
@@ -145,9 +146,9 @@ const MessageArea = ({ messages, setMessages }) => {
                     );
                   })}
 
-                <div className={`flex items-center gap-1 mt-1 text-[11px] text-gray-500 ${isMe ? "justify-end" : "justify-start"}`}>
+                <div className={`flex items-center gap-1 mt-1 text-[11px] text-gray-500 dark:text-[#8696a0] ${isMe ? "justify-end" : "justify-start"}`}>
                   <span>{formatTime(msg.createdAt)}</span>
-                  {isMe && <span className={msg.seen ? "text-blue-500" : "text-gray-400"}>✓✓</span>}
+                  {isMe && <span className={msg.seen ? "text-blue-500 dark:text-[#53bdeb]" : "text-gray-400 dark:text-[#8696a0]"}>✓✓</span>}
                 </div>
               </div>
             </div>

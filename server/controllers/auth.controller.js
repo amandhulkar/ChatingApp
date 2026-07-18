@@ -118,7 +118,7 @@ const updateProfile = async (req, res) => {
     //   { fullName, email },
     //   { new: true },
     // ).select("-password");
-    const updateData = { ...req.body };
+    const updateData = {};
 
     if (req.body.fullName) {
       updateData.fullName = req.body.fullName;
@@ -126,12 +126,19 @@ const updateProfile = async (req, res) => {
     if (req.body.email) {
       updateData.email = req.body.email;
     }
+    if (req.body.about !== undefined) {
+      const about = req.body.about.trim();
+      if (about.length > 140) {
+        return res.status(400).json({ message: "About must be 140 characters or less" });
+      }
+      updateData.about = about;
+    }
     if (req.imageUrl) {
       updateData.profilePic = req.imageUrl;
     }
     const updateUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
-    });
+    }).select("-password");
 
     res.status(200).json({
       message: "Profile updated successfully",
@@ -166,7 +173,7 @@ const getAllContacts = async (req, res) => {
   try {
     const logingUserId = req.user._id;
     const query = { _id: { $ne: logingUserId } };
-    const user = await User.find(query);
+    const user = await User.find(query).select("-password");
 
     res.status(200).json({
       message: "get all contacts list",

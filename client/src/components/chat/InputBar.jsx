@@ -230,15 +230,15 @@ const InputBar = ({ setMessages }) => {
 
 
   return (
-    <div className="relative bg-[#F0F0F0] px-2 sm:px-3 py-3 sm:py-4 flex items-end gap-1 sm:gap-2 border-t border-gray-200">
+    <div className="relative bg-[#F0F0F0] dark:bg-[#202c33] px-2 sm:px-3 py-3 sm:py-4 flex items-end gap-1 sm:gap-2 border-t border-gray-200 dark:border-[#2a3942]">
       {showEmoji && (
-        <div className="absolute bottom-full left-3 mb-2 bg-white rounded-2xl shadow-lg border border-gray-200 p-3 grid grid-cols-5 gap-2 z-10">
+        <div className="absolute bottom-full left-3 mb-2 bg-white dark:bg-[#233138] rounded-2xl shadow-lg border border-gray-200 dark:border-[#2a3942] p-3 grid grid-cols-5 gap-2 z-10">
           {emojis.map((emoji) => (
             <button
               key={emoji}
               type="button"
               onClick={() => handleEmojiClick(emoji)}
-              className="text-2xl hover:bg-gray-100 rounded-lg p-1"
+              className="text-2xl hover:bg-gray-100 dark:hover:bg-[#2a3942] rounded-lg p-1"
             >
               {emoji}
             </button>
@@ -249,13 +249,13 @@ const InputBar = ({ setMessages }) => {
       <button
         type="button"
         onClick={() => setShowEmoji((prev) => !prev)}
-        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 ${showEmoji ? "bg-gray-200" : ""}`}
+        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-[#2a3942] ${showEmoji ? "bg-gray-200 dark:bg-[#2a3942]" : ""}`}
       >
-        <BsEmojiSmile className="text-xl text-gray-600" />
+        <BsEmojiSmile className="text-xl text-gray-600 dark:text-[#8696a0]" />
       </button>
 
-      <button type="button" onClick={() => fileInputRef.current.click()} className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200">
-        <GrGallery className="text-xl text-gray-600" />
+      <button type="button" onClick={() => fileInputRef.current.click()} className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-[#2a3942]">
+        <GrGallery className="text-xl text-gray-600 dark:text-[#8696a0]" />
       </button>
 
       <input
@@ -270,7 +270,7 @@ const InputBar = ({ setMessages }) => {
         {
           <div className="flex gap-2 overflow-x-auto pb-2 max-w-full">
             {fileUrl.map(({ file, previewUrl }, i) => (
-              <div className="relative bg-white rounded-2xl p-1 shadow-sm" key={`${file.name}-${i}`} >
+              <div className="relative bg-white dark:bg-[#111b21] rounded-2xl p-1 shadow-sm" key={`${file.name}-${i}`} >
                 {file.type.startsWith("image") && (
                   <img src={previewUrl} alt={file.name} className="w-24 h-24 rounded-xl object-cover" />
                 )}
@@ -279,7 +279,7 @@ const InputBar = ({ setMessages }) => {
                 )}
                 {file.type.startsWith("audio") && (
                   <div className="w-44 sm:w-56 p-2">
-                    <p className="text-xs text-gray-600 mb-1 truncate">{file.name}</p>
+                    <p className="text-xs text-gray-600 dark:text-[#8696a0] mb-1 truncate">{file.name}</p>
                     <audio src={previewUrl} controls className="w-full" />
                   </div>
                 )}
@@ -303,7 +303,7 @@ const InputBar = ({ setMessages }) => {
               }
             }}
 
-            className="w-full bg-white border border-gray-300 rounded-full px-4 py-2 outline-none text-sm"
+            className="w-full bg-white dark:bg-[#2a3942] border border-gray-300 dark:border-[#2a3942] rounded-full px-4 py-2 outline-none text-sm text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0]"
           />
         </div>
       </div>
@@ -312,9 +312,9 @@ const InputBar = ({ setMessages }) => {
       <button
         type="button"
         onClick={recording ? stopRecording : startRecording}
-        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full ${recording ? "bg-red-500 animate-pulse" : "bg-gray-200"}`}
+        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full ${recording ? "bg-red-500 animate-pulse" : "bg-gray-200 dark:bg-[#2a3942]"}`}
       >
-        {recording ? <FaStop className="text-white" /> : <FaMicrophone className="text-gray-600" />}
+        {recording ? <FaStop className="text-white" /> : <FaMicrophone className="text-gray-600 dark:text-[#8696a0]" />}
       </button>
 
       <button

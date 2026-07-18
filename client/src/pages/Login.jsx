@@ -36,6 +36,7 @@ const Login = () => {
       console.log(res.data);
       const token = res.data.token;
       localStorage.setItem("token", token); //tokan ko local storage me store krna
+      window.dispatchEvent(new Event("authTokenChanged"));
       // taki user ko baar baar login na krna pade
       console.log("Saved Token:", token); // token ko console me print krna taaki hum verify kr sake ki token sahi se store hua hai ya nahi
       toast.success(res.data.message);

@@ -17,6 +17,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    about: {
+      type: String,
+      default: "Hey there! I am using ChatingApp.",
+      trim: true,
+      maxlength: 140,
+    },
     googleId: {
       type: String,
     },

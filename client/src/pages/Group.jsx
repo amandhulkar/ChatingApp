@@ -196,8 +196,8 @@ const Group = () => {
   }
 
   return (
-    <div className="flex flex-col h-screen min-w-0 overflow-hidden">
-      <div className="px-4 py-3 bg-[#075E54] flex items-center gap-3 text-white">
+    <div className="flex flex-col h-screen min-w-0 overflow-hidden bg-white text-gray-900 dark:bg-[#111b21] dark:text-[#e9edef]">
+      <div className="px-4 py-3 bg-[#075E54] dark:bg-[#202c33] flex items-center gap-3 text-white">
         <button type="button" onClick={() => navigate("/chat")} className="md:hidden text-2xl">
           <IoArrowBack />
         </button>
@@ -218,7 +218,7 @@ const Group = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto bg-[#efeae2] px-2 sm:px-4 py-3">
+      <div className="flex-1 overflow-y-auto bg-[#efeae2] dark:bg-[#0b141a] px-2 sm:px-4 py-3">
         {messages.map((msg, index) => {
           const isMe = getId(msg.senderId) === currentUserId;
           const previousMsg = messages[index - 1];
@@ -228,15 +228,15 @@ const Group = () => {
             <div key={msg._id}>
               {showDate && (
                 <div className="flex justify-center my-3">
-                  <span className="bg-white/80 text-gray-600 text-xs px-3 py-1 rounded-lg shadow-sm">
+                  <span className="bg-white/80 dark:bg-[#182229] text-gray-600 dark:text-[#8696a0] text-xs px-3 py-1 rounded-lg shadow-sm">
                     {formatDateLabel(msg.createdAt)}
                   </span>
                 </div>
               )}
 
               <div className={`flex mb-2 ${isMe ? "justify-end" : "justify-start"}`}>
-                <div className={`p-2 rounded-lg shadow max-w-[85%] sm:max-w-[75%] break-words ${isMe ? "bg-[#dcf8c6] rounded-tr-none" : "bg-white rounded-tl-none"}`}>
-                  {!isMe && <p className="text-[11px] font-semibold text-primary mb-1">{msg.senderId?.fullName || "Member"}</p>}
+                <div className={`p-2 rounded-lg shadow max-w-[85%] sm:max-w-[75%] break-words text-gray-900 dark:text-[#e9edef] ${isMe ? "bg-[#dcf8c6] dark:bg-[#005c4b] rounded-tr-none" : "bg-white dark:bg-[#202c33] rounded-tl-none"}`}>
+                  {!isMe && <p className="text-[11px] font-semibold text-primary dark:text-[#00a884] mb-1">{msg.senderId?.fullName || "Member"}</p>}
 
                   {msg.text && <p className="text-sm whitespace-pre-wrap">{msg.text}</p>}
 
@@ -252,7 +252,7 @@ const Group = () => {
                     <audio key={i} src={audio} controls className="rounded-lg max-w-full sm:max-w-[250px] mt-1" />
                   ))}
 
-                  <div className={`flex items-center gap-1 mt-1 text-[11px] text-gray-500 ${isMe ? "justify-end" : "justify-start"}`}>
+                  <div className={`flex items-center gap-1 mt-1 text-[11px] text-gray-500 dark:text-[#8696a0] ${isMe ? "justify-end" : "justify-start"}`}>
                     <span>{formatTime(msg.createdAt)}</span>
                   </div>
                 </div>
@@ -263,23 +263,23 @@ const Group = () => {
         <div ref={bottomRef}></div>
       </div>
 
-      <div className="relative bg-[#F0F0F0] px-2 sm:px-3 py-3 sm:py-4 flex items-end gap-1 sm:gap-2 border-t border-gray-200">
+      <div className="relative bg-[#F0F0F0] dark:bg-[#202c33] px-2 sm:px-3 py-3 sm:py-4 flex items-end gap-1 sm:gap-2 border-t border-gray-200 dark:border-[#2a3942]">
         {showEmoji && (
-          <div className="absolute bottom-full left-3 mb-2 bg-white rounded-2xl shadow-lg border border-gray-200 p-3 grid grid-cols-5 gap-2 z-10">
+          <div className="absolute bottom-full left-3 mb-2 bg-white dark:bg-[#233138] rounded-2xl shadow-lg border border-gray-200 dark:border-[#2a3942] p-3 grid grid-cols-5 gap-2 z-10">
             {emojis.map((emoji) => (
-              <button key={emoji} type="button" onClick={() => handleEmojiClick(emoji)} className="text-2xl hover:bg-gray-100 rounded-lg p-1">
+              <button key={emoji} type="button" onClick={() => handleEmojiClick(emoji)} className="text-2xl hover:bg-gray-100 dark:hover:bg-[#2a3942] rounded-lg p-1">
                 {emoji}
               </button>
             ))}
           </div>
         )}
 
-        <button type="button" onClick={() => setShowEmoji((prev) => !prev)} className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 ${showEmoji ? "bg-gray-200" : ""}`}>
-          <BsEmojiSmile className="text-xl text-gray-600" />
+        <button type="button" onClick={() => setShowEmoji((prev) => !prev)} className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-[#2a3942] ${showEmoji ? "bg-gray-200 dark:bg-[#2a3942]" : ""}`}>
+          <BsEmojiSmile className="text-xl text-gray-600 dark:text-[#8696a0]" />
         </button>
 
-        <button type="button" onClick={() => fileInputRef.current.click()} className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200">
-          <GrGallery className="text-xl text-gray-600" />
+        <button type="button" onClick={() => fileInputRef.current.click()} className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-[#2a3942]">
+          <GrGallery className="text-xl text-gray-600 dark:text-[#8696a0]" />
         </button>
 
         <input type="file" ref={fileInputRef} hidden multiple accept="image/*,video/*,audio/*" onChange={handleFileChange} />
@@ -287,12 +287,12 @@ const Group = () => {
         <div className="flex-1 min-w-0">
           <div className="flex gap-2 overflow-x-auto pb-2 max-w-full">
             {fileUrl.map(({ file, previewUrl }, i) => (
-              <div className="relative bg-white rounded-2xl p-1 shadow-sm" key={`${file.name}-${i}`}>
+              <div className="relative bg-white dark:bg-[#111b21] rounded-2xl p-1 shadow-sm" key={`${file.name}-${i}`}>
                 {file.type.startsWith("image") && <img src={previewUrl} alt={file.name} className="w-24 h-24 rounded-xl object-cover" />}
                 {file.type.startsWith("video") && <video src={previewUrl} controls className="w-24 h-24 rounded-xl object-cover" />}
                 {file.type.startsWith("audio") && (
                   <div className="w-44 sm:w-56 p-2">
-                    <p className="text-xs text-gray-600 mb-1 truncate">{file.name}</p>
+                    <p className="text-xs text-gray-600 dark:text-[#8696a0] mb-1 truncate">{file.name}</p>
                     <audio src={previewUrl} controls className="w-full" />
                   </div>
                 )}
@@ -312,12 +312,12 @@ const Group = () => {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !sending) handleSend();
             }}
-            className="w-full bg-white border border-gray-300 rounded-full px-4 py-2 outline-none text-sm"
+            className="w-full bg-white dark:bg-[#2a3942] border border-gray-300 dark:border-[#2a3942] rounded-full px-4 py-2 outline-none text-sm text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0]"
           />
         </div>
 
-        <button type="button" onClick={recording ? stopRecording : startRecording} className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full ${recording ? "bg-red-500 animate-pulse" : "bg-gray-200"}`}>
-          {recording ? <FaStop className="text-white" /> : <FaMicrophone className="text-gray-600" />}
+        <button type="button" onClick={recording ? stopRecording : startRecording} className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full ${recording ? "bg-red-500 animate-pulse" : "bg-gray-200 dark:bg-[#2a3942]"}`}>
+          {recording ? <FaStop className="text-white" /> : <FaMicrophone className="text-gray-600 dark:text-[#8696a0]" />}
         </button>
 
         <button onClick={handleSend} disabled={sending} className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full ${sending ? "bg-gray-400" : "bg-primary"}`}>

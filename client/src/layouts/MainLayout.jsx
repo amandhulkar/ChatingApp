@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FaPlus } from "react-icons/fa";
+import { useState, useEffect, useRef } from "react";
+import { FaMoon, FaPlus, FaSun } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../api/config";
 import { useSocket } from "../context/SocketContext";
+import { useTheme } from "../context/ThemeContext";
+
+const DEFAULT_ABOUT = "Hey there! I am using ChatingApp.";
 
 const MainLayout = () => {
   const [contacts, setContacts] = useState([]);
@@ -19,8 +22,8 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isConversationOpen = location.pathname.startsWith("/chat/") || location.pathname.startsWith("/group/");
-  const token = localStorage.getItem("token");
-  const { socketRef } = useSocket();
+  const { token, socketRef } = useSocket();
+  const { isDark, toggleTheme } = useTheme();
   const fileInputRef = useRef();
 
   const user = {
@@ -28,6 +31,7 @@ const MainLayout = () => {
   };
 
   const fetchContacts = async () => {
+    if (!token) return;
     try {
       const res = await axios.get(`${API_BASE_URL}/api/getAllContacts`, {
         headers: {
@@ -41,6 +45,7 @@ const MainLayout = () => {
   };
 
   const fetchGroups = async () => {
+    if (!token) return;
     try {
       const res = await axios.get(`${API_BASE_URL}/api/my-groups`, {
         headers: {
@@ -56,7 +61,7 @@ const MainLayout = () => {
   useEffect(() => {
     fetchContacts();
     fetchGroups();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     const socket = socketRef?.current;
@@ -121,34 +126,43 @@ const MainLayout = () => {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col md:flex-row overflow-hidden">
-      <div className={`bg-gray-100 w-full md:w-80 shrink-0 p-3 border-r border-gray-300 overflow-hidden ${isConversationOpen ? "hidden md:block" : "block"}`}>
+    <div className="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-white text-gray-900 dark:bg-[#111b21] dark:text-[#e9edef]">
+      <div className={`bg-gray-100 dark:bg-[#111b21] w-full md:w-80 shrink-0 p-3 border-r border-gray-300 dark:border-[#2a3942] overflow-hidden ${isConversationOpen ? "hidden md:block" : "block"}`}>
         <div className="bg-primary px-4 py-4 flex items-center justify-between">
           <div className="text-white font-semibold text-lg truncate">
             {user.fullName}
           </div>
 
           <div className="flex items-center gap-3">
-            <button type="button" onClick={handlePlusClick} className="text-white/80 cursor-pointer text-xl">
+            <button type="button" onClick={handlePlusClick} className="text-white/80 hover:text-white cursor-pointer text-xl">
               <FaPlus />
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="text-white/80 hover:text-white cursor-pointer text-xl"
+            >
+              {isDark ? <FaSun /> : <FaMoon />}
             </button>
             <div
               onClick={() => navigate("/profile")}
-              className="text-white/80 cursor-pointer text-xl"
+              className="text-white/80 hover:text-white cursor-pointer text-xl"
             >
               <CgProfile />
             </div>
           </div>
         </div>
 
-        <div className="flex border-b justify-between border-gray-300 bg-gray-200">
+        <div className="flex border-b justify-between border-gray-300 bg-gray-200 dark:border-[#2a3942] dark:bg-[#202c33]">
           <button
             onClick={() => setActiveTab("chats")}
             className={`flex-1 py-2 text-sm font-medium transition
               ${
                 activeTab === "chats"
-                  ? "text-[#075E54] border-b-2 border-[#075E54]"
-                  : "text-gray-500"
+                  ? "text-[#075E54] border-b-2 border-[#075E54] dark:text-[#00a884] dark:border-[#00a884]"
+                  : "text-gray-500 dark:text-[#8696a0]"
               }`}
           >
             Chats
@@ -159,8 +173,8 @@ const MainLayout = () => {
             className={`flex-1 py-2 text-sm font-medium transition
               ${
                 activeTab === "groups"
-                  ? "text-[#075E54] border-b-2 border-[#075E54]"
-                  : "text-gray-500"
+                  ? "text-[#075E54] border-b-2 border-[#075E54] dark:text-[#00a884] dark:border-[#00a884]"
+                  : "text-gray-500 dark:text-[#8696a0]"
               }`}
           >
             Groups
@@ -174,7 +188,7 @@ const MainLayout = () => {
                 <div
                   key={c._id}
                   onClick={() => navigate(`/chat/${c._id}`)}
-                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-300 border-b border-gray-100 transition"
+                  className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-300 dark:hover:bg-[#202c33] border-b border-gray-100 dark:border-[#2a3942] transition"
                 >
                   <div className="relative ">
                     <div className="w-12 h-12 rounded-full bg-[#075E54] text-white flex items-center justify-center font-medium text-lg overflow-hidden">
@@ -192,13 +206,13 @@ const MainLayout = () => {
 
                   <div className="min-w-0">
                     <div className="flex justify-between items-center">
-                      <p className="font-medium text-gray-900 text-sm truncate">
+                      <p className="font-medium text-gray-900 dark:text-[#e9edef] text-sm truncate">
                         {c.fullName}
                       </p>
                     </div>
 
-                    <p className="text-xs text-gray-500 truncate mt-0.5">
-                      online
+                    <p className="text-xs text-gray-500 dark:text-[#8696a0] truncate mt-0.5">
+                      {c.about || DEFAULT_ABOUT}
                     </p>
                   </div>
                 </div>
@@ -207,9 +221,9 @@ const MainLayout = () => {
           ) : (
             <>
               {groups.length === 0 ? (
-                <div className="text-center py-10 text-gray-400 text-sm">
+                <div className="text-center py-10 text-gray-400 dark:text-[#8696a0] text-sm">
                   <p>No Group Found</p>
-                  <button type="button" onClick={() => setShowGroupModal(true)} className="mt-3 text-primary font-medium">
+                  <button type="button" onClick={() => setShowGroupModal(true)} className="mt-3 text-primary dark:text-[#00a884] font-medium">
                     Create group
                   </button>
                 </div>
@@ -218,7 +232,7 @@ const MainLayout = () => {
                   <div
                     key={g._id}
                     onClick={() => navigate(`/group/${g._id}`)}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-300 border-b border-gray-100 transition"
+                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-300 dark:hover:bg-[#202c33] border-b border-gray-100 dark:border-[#2a3942] transition"
                   >
                     <div className="w-12 h-12 rounded-full bg-[#075E54] text-white flex items-center justify-center font-medium text-lg overflow-hidden shrink-0">
                       {g.group_icon ? (
@@ -233,11 +247,11 @@ const MainLayout = () => {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 text-sm truncate">
+                      <p className="font-medium text-gray-900 dark:text-[#e9edef] text-sm truncate">
                         {g.group_name}
                       </p>
 
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-gray-500 dark:text-[#8696a0] truncate">
                         {g.group_member?.length || 0} members
                       </p>
                     </div>
@@ -254,11 +268,11 @@ const MainLayout = () => {
       </div>
 
       {showGroupModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-3">
-          <form onSubmit={handleCreateGroup} className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 shadow-xl">
+        <div className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 px-3">
+          <form onSubmit={handleCreateGroup} className="bg-white dark:bg-[#202c33] rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 shadow-xl text-gray-900 dark:text-[#e9edef]">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Create Group</h2>
-              <button type="button" onClick={resetGroupForm} className="text-gray-500 hover:text-gray-800">✕</button>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-[#e9edef]">Create Group</h2>
+              <button type="button" onClick={resetGroupForm} className="text-gray-500 hover:text-gray-800 dark:text-[#8696a0] dark:hover:text-[#e9edef]">✕</button>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -266,14 +280,14 @@ const MainLayout = () => {
                 value={groupName}
                 onChange={(e) => setGroupName(e.target.value)}
                 placeholder="Group name"
-                className="border border-gray-300 rounded-xl px-4 py-2 outline-none focus:border-primary"
+                className="border border-gray-300 dark:border-[#2a3942] rounded-xl px-4 py-2 outline-none focus:border-primary dark:focus:border-[#00a884] bg-white dark:bg-[#111b21] text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0]"
               />
 
               <textarea
                 value={groupDescription}
                 onChange={(e) => setGroupDescription(e.target.value)}
                 placeholder="Description (optional)"
-                className="border border-gray-300 rounded-xl px-4 py-2 outline-none focus:border-primary resize-none"
+                className="border border-gray-300 dark:border-[#2a3942] rounded-xl px-4 py-2 outline-none focus:border-primary dark:focus:border-[#00a884] resize-none bg-white dark:bg-[#111b21] text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0]"
                 rows="2"
               />
 
@@ -285,21 +299,21 @@ const MainLayout = () => {
                 onChange={(e) => setGroupIcon(e.target.files?.[0] || null)}
               />
 
-              <button type="button" onClick={() => fileInputRef.current?.click()} className="border border-dashed border-gray-300 rounded-xl py-3 text-sm text-gray-600 hover:bg-gray-50">
+              <button type="button" onClick={() => fileInputRef.current?.click()} className="border border-dashed border-gray-300 dark:border-[#2a3942] rounded-xl py-3 text-sm text-gray-600 dark:text-[#8696a0] hover:bg-gray-50 dark:hover:bg-[#111b21]">
                 {groupIcon ? groupIcon.name : "Choose group icon"}
               </button>
 
               <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">Select members</p>
-                <div className="border border-gray-200 rounded-xl max-h-56 overflow-y-auto">
+                <p className="text-sm font-medium text-gray-700 dark:text-[#e9edef] mb-2">Select members</p>
+                <div className="border border-gray-200 dark:border-[#2a3942] rounded-xl max-h-56 overflow-y-auto">
                   {contacts.map((contact) => (
-                    <label key={contact._id} className="flex items-center gap-3 px-3 py-2 border-b border-gray-100 last:border-b-0 cursor-pointer hover:bg-gray-50">
+                    <label key={contact._id} className="flex items-center gap-3 px-3 py-2 border-b border-gray-100 dark:border-[#2a3942] last:border-b-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#111b21]">
                       <input
                         type="checkbox"
                         checked={selectedMembers.includes(contact._id)}
                         onChange={() => toggleMember(contact._id)}
                       />
-                      <span className="text-sm text-gray-800 truncate">{contact.fullName}</span>
+                      <span className="text-sm text-gray-800 dark:text-[#e9edef] truncate">{contact.fullName}</span>
                     </label>
                   ))}
                 </div>
