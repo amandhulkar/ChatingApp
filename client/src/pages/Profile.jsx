@@ -105,7 +105,7 @@ const Profile = () => {
 
   return (
     // <div className="flex flex-col h-full bg-gray-100">
-    <div className="flex flex-col h-screen bg-gray-100 w-full min-w-0 overflow-hidden">
+    <div className="flex flex-col h-screen bg-gray-100 dark:bg-[#0b141a] w-full min-w-0 overflow-hidden">
       {/* Header */}
       <div className="bg-primary px-4 py-4 flex items-center gap-3">
         <button
@@ -164,14 +164,14 @@ const Profile = () => {
 
       {/* Form Section */}
       <div className="flex-1 overflow-auto px-4 py-4 flex flex-col gap-3">
-        <div className="bg-white rounded-xl p-4 shadow-sm">
+        <div className="bg-white dark:bg-[#111b21] rounded-xl p-4 shadow-sm border border-transparent dark:border-[#2a3942]">
           <p className="text-xs text-[#00BFA5] font-medium uppercase tracking-wide mb-3">
             Account Info
           </p>
 
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Full Name</label>
+              <label className="text-xs text-gray-500 dark:text-[#8696a0]">Full Name</label>
               <input
                 type="text"
                 name="fullName"
@@ -179,12 +179,12 @@ const Profile = () => {
                 value={formData.fullName}
                 onChange={handleChange}
                 // readOnly
-                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#00BFA5]"
+                className="border border-gray-200 dark:border-[#2a3942] bg-white dark:bg-[#202c33] rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0] outline-none focus:border-[#00BFA5]"
               />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Email</label>
+              <label className="text-xs text-gray-500 dark:text-[#8696a0]">Email</label>
               <input
                 type="email"
                 name="email"
@@ -195,14 +195,14 @@ const Profile = () => {
                 //   setFormData({ ...formData, email: e.target.value })
                 // }
                 // readOnly
-                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#00BFA5]"
+                className="border border-gray-200 dark:border-[#2a3942] bg-white dark:bg-[#202c33] rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0] outline-none focus:border-[#00BFA5]"
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
-                <label className="text-xs text-gray-500">About</label>
-                <span className="text-[11px] text-gray-400">
+                <label className="text-xs text-gray-500 dark:text-[#8696a0]">About</label>
+                <span className="text-[11px] text-gray-400 dark:text-[#8696a0]">
                   {(formData.about || "").length}/140
                 </span>
               </div>
@@ -213,7 +213,7 @@ const Profile = () => {
                 placeholder="Write something about yourself"
                 maxLength={140}
                 rows="3"
-                className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#00BFA5] resize-none"
+                className="border border-gray-200 dark:border-[#2a3942] bg-white dark:bg-[#202c33] rounded-lg px-3 py-2.5 text-sm text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0] outline-none focus:border-[#00BFA5] resize-none"
               />
             </div>
           </div>

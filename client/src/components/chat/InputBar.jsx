@@ -114,9 +114,10 @@ import { API_BASE_URL } from "../../api/config";
 import { useSocket } from "../../context/SocketContext";
 import { useParams } from "react-router-dom";
 import { IoSend } from "react-icons/io5";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
-const InputBar = ({ setMessages }) => {
+const InputBar = ({ setMessages, disabled = false, blockedByMe = false, hasBlockedMe = false }) => {
   const [fileUrl, setFileUrl] = useState([]);
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
@@ -127,12 +128,13 @@ const InputBar = ({ setMessages }) => {
   const { userId } = useParams();
   const fileInputRef = useRef()
   const messageInputRef = useRef()
+  const emojiRef = useRef(null)
   const mediaRecorderRef = useRef(null)
   const audioChunksRef = useRef([])
   const emojis = ["😀", "😂", "😍", "🥰", "😎", "😭", "😡", "👍", "🙏", "🔥", "❤️", "🎉", "🤣", "😘", "😋", "😢", "🤔", "👌", "💯", "✨"]
 
   const addFiles = (files) => {
-    if (!files?.length) return;
+    if (disabled || !files?.length) return;
 
     const attachments = Array.from(files).map((file) => ({
       file,
@@ -148,6 +150,10 @@ const InputBar = ({ setMessages }) => {
   }
 
   const handleSend = async () => {
+    if (disabled) {
+      toast.error(blockedByMe ? "Unblock this user to send messages" : "You cannot send messages to this user")
+      return;
+    }
     if (sending || (!text.trim() && fileUrl.length === 0)) return;
 
     setSending(true);
@@ -176,6 +182,7 @@ const InputBar = ({ setMessages }) => {
       setFileUrl([]);
     } catch (error) {
       console.log(error.response);
+      toast.error(error.response?.data?.message || "Message send failed");
     } finally {
       setSending(false);
     }
@@ -228,9 +235,20 @@ const InputBar = ({ setMessages }) => {
     setRecording(false);
   }
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (emojiRef.current && !emojiRef.current.contains(e.target)) {
+        setShowEmoji(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
 
   return (
-    <div className="relative bg-[#F0F0F0] dark:bg-[#202c33] px-2 sm:px-3 py-3 sm:py-4 flex items-end gap-1 sm:gap-2 border-t border-gray-200 dark:border-[#2a3942]">
+    <div ref={emojiRef} className="relative bg-[#F0F0F0] dark:bg-[#202c33] px-2 sm:px-3 py-3 sm:py-4 flex items-end gap-1 sm:gap-2 border-t border-gray-200 dark:border-[#2a3942]">
       {showEmoji && (
         <div className="absolute bottom-full left-3 mb-2 bg-white dark:bg-[#233138] rounded-2xl shadow-lg border border-gray-200 dark:border-[#2a3942] p-3 grid grid-cols-5 gap-2 z-10">
           {emojis.map((emoji) => (
@@ -248,13 +266,14 @@ const InputBar = ({ setMessages }) => {
 
       <button
         type="button"
-        onClick={() => setShowEmoji((prev) => !prev)}
-        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-[#2a3942] ${showEmoji ? "bg-gray-200 dark:bg-[#2a3942]" : ""}`}
+        onClick={() => !disabled && setShowEmoji((prev) => !prev)}
+        disabled={disabled}
+        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-[#2a3942] disabled:opacity-50 disabled:cursor-not-allowed ${showEmoji ? "bg-gray-200 dark:bg-[#2a3942]" : ""}`}
       >
         <BsEmojiSmile className="text-xl text-gray-600 dark:text-[#8696a0]" />
       </button>
 
-      <button type="button" onClick={() => fileInputRef.current.click()} className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-[#2a3942]">
+      <button type="button" disabled={disabled} onClick={() => fileInputRef.current.click()} className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-[#2a3942] disabled:opacity-50 disabled:cursor-not-allowed">
         <GrGallery className="text-xl text-gray-600 dark:text-[#8696a0]" />
       </button>
 
@@ -296,14 +315,15 @@ const InputBar = ({ setMessages }) => {
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Type a message..."
+            disabled={disabled}
+            placeholder={disabled ? (blockedByMe ? "You blocked this user" : "You cannot send messages") : "Type a message..."}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !sending) {
                 handleSend()
               }
             }}
 
-            className="w-full bg-white dark:bg-[#2a3942] border border-gray-300 dark:border-[#2a3942] rounded-full px-4 py-2 outline-none text-sm text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0]"
+            className="w-full bg-white dark:bg-[#2a3942] border border-gray-300 dark:border-[#2a3942] rounded-full px-4 py-2 outline-none text-sm text-gray-900 dark:text-[#e9edef] placeholder:text-gray-400 dark:placeholder:text-[#8696a0] disabled:opacity-70 disabled:cursor-not-allowed"
           />
         </div>
       </div>
@@ -312,16 +332,17 @@ const InputBar = ({ setMessages }) => {
       <button
         type="button"
         onClick={recording ? stopRecording : startRecording}
-        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full ${recording ? "bg-red-500 animate-pulse" : "bg-gray-200 dark:bg-[#2a3942]"}`}
+        disabled={disabled}
+        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full disabled:opacity-50 disabled:cursor-not-allowed ${recording ? "bg-red-500 animate-pulse" : "bg-gray-200 dark:bg-[#2a3942]"}`}
       >
         {recording ? <FaStop className="text-white" /> : <FaMicrophone className="text-gray-600 dark:text-[#8696a0]" />}
       </button>
 
       <button
         onClick={handleSend}
-        disabled={sending}
-        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full
-          ${sending ? "bg-gray-400" : "bg-primary"}`}
+        disabled={sending || disabled}
+        className={`w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex items-center justify-center rounded-full disabled:cursor-not-allowed
+          ${sending || disabled ? "bg-gray-400" : "bg-primary"}`}
       >
         <IoSend className="text-white" />
       </button>

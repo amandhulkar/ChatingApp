@@ -1,12 +1,13 @@
 import axios from "axios";
 import React from "react";
+import { MdDeleteOutline } from "react-icons/md";
 import { API_BASE_URL } from "../../api/config";
 import { useParams } from "react-router-dom";
 import { useSocket } from "../../context/SocketContext";
 import { useEffect } from "react";
 import { useRef } from "react";
 
-const MessageArea = ({ messages, setMessages }) => {
+const MessageArea = ({ messages, setMessages, searchText = "", onDeleteMessage }) => {
   const { userId } = useParams();
   const { token, socketConnected, socketRef } = useSocket();
   const bottomRef = useRef()
@@ -31,6 +32,10 @@ const MessageArea = ({ messages, setMessages }) => {
   }
 
   const getId = (value) => value?._id || value;
+
+  const filteredMessages = searchText.trim()
+    ? messages.filter((msg) => msg.text?.toLowerCase().includes(searchText.trim().toLowerCase()))
+    : messages;
 
   const isCurrentChatMessage = (msg) => {
     const senderId = getId(msg.senderId);
@@ -83,9 +88,16 @@ const MessageArea = ({ messages, setMessages }) => {
 
   return (
     <div className="flex-1 overflow-y-auto bg-[#efeae2] dark:bg-[#0b141a] px-2 sm:px-4 py-3">
-      {messages.map((msg, index) => {
+      {filteredMessages.length === 0 && searchText.trim() ? (
+        <div className="flex justify-center mt-6">
+          <span className="bg-white/80 dark:bg-[#182229] text-gray-600 dark:text-[#8696a0] text-sm px-4 py-2 rounded-lg shadow-sm">
+            No messages found
+          </span>
+        </div>
+      ) : null}
+      {filteredMessages.map((msg, index) => {
         const isMe = getId(msg.senderId) !== userId
-        const previousMsg = messages[index - 1];
+        const previousMsg = filteredMessages[index - 1];
         const showDate = !previousMsg || new Date(previousMsg.createdAt).toDateString() !== new Date(msg.createdAt).toDateString();
 
         return (
@@ -147,6 +159,14 @@ const MessageArea = ({ messages, setMessages }) => {
                   })}
 
                 <div className={`flex items-center gap-1 mt-1 text-[11px] text-gray-500 dark:text-[#8696a0] ${isMe ? "justify-end" : "justify-start"}`}>
+                  <button
+                    type="button"
+                    onClick={() => onDeleteMessage?.(msg._id)}
+                    className="mr-1 rounded-full p-1 text-gray-400 hover:bg-black/10 hover:text-red-500 dark:hover:bg-white/10"
+                    title="Delete message"
+                  >
+                    <MdDeleteOutline className="text-sm" />
+                  </button>
                   <span>{formatTime(msg.createdAt)}</span>
                   {isMe && <span className={msg.seen ? "text-blue-500 dark:text-[#53bdeb]" : "text-gray-400 dark:text-[#8696a0]"}>✓✓</span>}
                 </div>

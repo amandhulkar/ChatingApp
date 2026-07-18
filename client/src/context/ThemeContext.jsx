@@ -3,11 +3,23 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext(null);
 
+const getThemeKey = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return "theme";
+
+  try {
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    return decoded?.userId ? `theme:${decoded.userId}` : "theme";
+  } catch (error) {
+    return "theme";
+  }
+};
+
 const getInitialTheme = () => {
-  const savedTheme = localStorage.getItem("theme");
+  const savedTheme = localStorage.getItem(getThemeKey());
   if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
 
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "light";
 };
 
 export const ThemeProvider = ({ children }) => {
@@ -15,8 +27,22 @@ export const ThemeProvider = ({ children }) => {
   const isDark = theme === "dark";
 
   useEffect(() => {
+    const handleAuthTokenChange = () => {
+      setTheme(getInitialTheme());
+    };
+
+    window.addEventListener("authTokenChanged", handleAuthTokenChange);
+    window.addEventListener("storage", handleAuthTokenChange);
+
+    return () => {
+      window.removeEventListener("authTokenChanged", handleAuthTokenChange);
+      window.removeEventListener("storage", handleAuthTokenChange);
+    };
+  }, []);
+
+  useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem("theme", theme);
+    localStorage.setItem(getThemeKey(), theme);
   }, [theme, isDark]);
 
   const toggleTheme = () => {

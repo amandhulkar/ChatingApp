@@ -21,7 +21,7 @@ const MainLayout = () => {
   const [creatingGroup, setCreatingGroup] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const isConversationOpen = location.pathname.startsWith("/chat/") || location.pathname.startsWith("/group/");
+  const isConversationOpen = location.pathname.startsWith("/chat/") || location.pathname.startsWith("/group/") || location.pathname.startsWith("/profile");
   const { token, socketRef } = useSocket();
   const { isDark, toggleTheme } = useTheme();
   const fileInputRef = useRef();
@@ -134,9 +134,11 @@ const MainLayout = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <button type="button" onClick={handlePlusClick} className="text-white/80 hover:text-white cursor-pointer text-xl">
-              <FaPlus />
-            </button>
+            {activeTab === "groups" && (
+              <button type="button" onClick={handlePlusClick} className="text-white/80 hover:text-white cursor-pointer text-xl">
+                <FaPlus />
+              </button>
+            )}
             <button
               type="button"
               onClick={toggleTheme}

@@ -133,8 +133,8 @@ const updateProfile = async (req, res) => {
       }
       updateData.about = about;
     }
-    if (req.imageUrl) {
-      updateData.profilePic = req.imageUrl;
+    if (req.imageUrl?.length) {
+      updateData.profilePic = req.imageUrl[0];
     }
     const updateUser = await User.findByIdAndUpdate(userId, updateData, {
       new: true,
