@@ -34,7 +34,7 @@ const Login = () => {
     try {
       setLoading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      const res = await axios.post(`${API_BASE_URL}/api/login`, formData);
+      const res = await axios.post(`${API_BASE_URL}/api/login`, formData, { timeout: 15000 });
       console.log(res.data);
       const token = res.data.token;
       localStorage.setItem("token", token); //tokan ko local storage me store krna
